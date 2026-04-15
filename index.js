@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extenden: true }));
 
 
 //cargar rutas 
-
+app.use("/api/customers", require("./routers/customer"));
 
 //Endpoint de prueba
 app.get('/', (req, res) => {
