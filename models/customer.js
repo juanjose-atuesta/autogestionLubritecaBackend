@@ -51,6 +51,9 @@ const CustomerSchema = new Schema({
   updateAt: {
     type: String,
     default: "undefined"
+  },
+  id: {
+    type: Date,
   }
 });
 

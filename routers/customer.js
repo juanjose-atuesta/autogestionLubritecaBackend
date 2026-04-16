@@ -19,5 +19,8 @@ router.get("/listCustomersContacted", CustomerController.listCustomersContacted)
 //POST
 router.post("/addCustomer", CustomerController.addCustomer);
 
+//PUT 
+router.put("/editCustomer", CustomerController.editCustomer);
+
 //Exportar router
 module.exports = router;

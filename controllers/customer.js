@@ -4,8 +4,8 @@ const Customer = require("../models/customer");
 
 const getCustomers = (req, res) => {
   Customer.find()
-    .then(clientes => {
-      if (!clientes) return res.status(404).send({
+    .then(customers => {
+      if (!customers) return res.status(404).send({
         status: "error",
         message: "No se encontraron clientes"
       });
@@ -13,7 +13,7 @@ const getCustomers = (req, res) => {
 
       return res.status(200).send({
         status: "success",
-        clientes
+        customers
       });
 
     })
@@ -149,5 +149,26 @@ const listCustomersContacted = (req, res) => {
     });
 }
 
+const editCustomer = (req, res) => {
+  let body = req.body;
+  if (!body || !body.id) {
+    return res.status(404).send({
+      status: "error",
+      message: "No se encontro nada"
+    });
 
-module.exports = { getCustomers, addCustomer, listByPlate, listByName, listByTelephone, listByService, listCustomersContacted };
+  }
+  Customer.findOneAndUpdate({ id: body.id }, body, { new: true })
+    .then(customerUpdated => {
+      if (!customerUpdated) return res.status(404).send({
+        status: "error",
+        message: "No se encontro el cliente"
+      });
+      return res.status(200).send({
+        status: "success",
+        customerUpdated
+      });
+
+    })
+}
+module.exports = { getCustomers, addCustomer, listByPlate, listByName, listByTelephone, listByService, listCustomersContacted, editCustomer };
