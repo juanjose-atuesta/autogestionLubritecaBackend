@@ -21,6 +21,7 @@ app.use(express.urlencoded({ extenden: true }));
 
 //cargar rutas 
 app.use("/api/customers", require("./routers/customer"));
+app.use("/api/historial", require("./routers/historialDB"));
 
 //Endpoint de prueba
 app.get('/', (req, res) => {

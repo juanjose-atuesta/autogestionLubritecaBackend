@@ -22,5 +22,7 @@ router.post("/addCustomer", CustomerController.addCustomer);
 //PUT 
 router.put("/editCustomer", CustomerController.editCustomer);
 
+router.patch("/toogleWasContacted/:id", CustomerController.toggleWasContacted);
+
 //Exportar router
 module.exports = router;

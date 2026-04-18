@@ -171,4 +171,30 @@ const editCustomer = (req, res) => {
 
     })
 }
-module.exports = { getCustomers, addCustomer, listByPlate, listByName, listByTelephone, listByService, listCustomersContacted, editCustomer };
+
+
+const toggleWasContacted = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const customer = await Customer.findOne({ id: id });
+    if (!customer) {
+      return res.status(404).send({
+        status: "error",
+        message: "No se encontro el cliente"
+      });
+    }
+    // Cambia el valor al contrario
+    customer.wasContacted = !customer.wasContacted;
+    await customer.save();
+    return res.status(200).send({
+      status: "success",
+      customerUpdated: customer
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error al actualizar el cliente"
+    });
+  }
+}
+module.exports = { getCustomers, addCustomer, listByPlate, listByName, listByTelephone, listByService, listCustomersContacted, editCustomer, toggleWasContacted };

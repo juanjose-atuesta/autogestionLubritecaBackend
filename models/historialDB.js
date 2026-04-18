@@ -1,9 +1,10 @@
+
 //importamos la libreria moongose 
 
 const { Schema, model } = require('mongoose');
 
 //creamos el esquema 
-const CustomerSchema = new Schema({
+const HistorialDBSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -59,4 +60,4 @@ const CustomerSchema = new Schema({
 });
 
 //exportamos el modelo
-module.exports = model("Customer", CustomerSchema, "customers");
+module.exports = model("HistorialDB", HistorialDBSchema, "historialDB");
