@@ -20,9 +20,14 @@ router.get("/listCustomersContacted", CustomerController.listCustomersContacted)
 router.post("/addCustomer", CustomerController.addCustomer);
 
 //PUT 
-router.put("/editCustomer", CustomerController.editCustomer);
 
+//PATCH 
 router.patch("/toogleWasContacted/:id", CustomerController.toggleWasContacted);
 
+router.patch("/editCustomer/:id", CustomerController.editCustomer);
+
+//DELETE 
+
+router.delete("/deleteCustomer/:id", CustomerController.deleteCustomer);
 //Exportar router
 module.exports = router;

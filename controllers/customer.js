@@ -150,26 +150,37 @@ const listCustomersContacted = (req, res) => {
 }
 
 const editCustomer = (req, res) => {
-  let body = req.body;
-  if (!body || !body.id) {
-    return res.status(404).send({
-      status: "error",
-      message: "No se encontro nada"
-    });
+  const id = req.params.id;
+  const { name, telephone, plate, service, entryDate, nextContact, mileage } = req.body;
 
+  if (!id) {
+    return res.status(400).send({
+      status: "error",
+      message: "No se proporcionó el id"
+    });
   }
-  Customer.findOneAndUpdate({ id: body.id }, body, { new: true })
+
+  const camposActualizar = { name, telephone, plate, service, entryDate, nextContact, mileage };
+
+  Customer.findOneAndUpdate(
+    { id: id },
+    { $set: camposActualizar },
+    { new: true }
+  )
     .then(customerUpdated => {
       if (!customerUpdated) return res.status(404).send({
         status: "error",
-        message: "No se encontro el cliente"
+        message: "No se encontró el cliente"
       });
       return res.status(200).send({
         status: "success",
         customerUpdated
       });
-
     })
+    .catch(err => res.status(500).send({
+      status: "error",
+      message: err.message
+    }));
 }
 
 
@@ -197,4 +208,28 @@ const toggleWasContacted = async (req, res) => {
     });
   }
 }
-module.exports = { getCustomers, addCustomer, listByPlate, listByName, listByTelephone, listByService, listCustomersContacted, editCustomer, toggleWasContacted };
+
+
+const deleteCustomer = (req, res) => {
+  let id = req.params.id;
+  Customer.findOneAndDelete({ id: id })
+    .then(customerDeleted => {
+      if (!customerDeleted) return res.status(404).send({
+        status: "error",
+        message: "No se encontro el cliente"
+      });
+      return res.status(200).send({
+        status: "success",
+        customerDeleted
+      });
+    }).catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al eliminar el cliente"
+      });
+    })
+}
+module.exports = {
+  getCustomers, addCustomer, listByPlate, listByName,
+  listByTelephone, listByService, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer
+};
