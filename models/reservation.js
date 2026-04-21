@@ -33,7 +33,7 @@ const ReservationSchema = new Schema({
     type: String,
     required: true
   },
-  reservationDate: {
+  date: {
     type: String,
     required: true
   },
