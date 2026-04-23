@@ -60,8 +60,43 @@ const deleteReservation = (req, res) => {
       });
     })
 }
+
+const editReservation = (req, res) => {
+  const reservationId = req.params.id;
+  const { name, telephone, plate, service, space, date, hour, notes } = req.body;
+
+  if (!reservationId) {
+    return res.status(400).send({
+      status: "error",
+      message: "No se proporcionó el id"
+    });
+  }
+
+  const camposActualizar = { name, telephone, plate, service, space, date, hour, notes };
+  Reservation.findOneAndUpdate(
+    { reservationId: reservationId },
+    { $set: camposActualizar },
+    { new: true }
+  )
+    .then(reservationUpdated => {
+      if (!reservationUpdated) return res.status(404).send({
+        status: "error",
+        message: "No se encontró el cliente"
+      });
+      return res.status(200).send({
+        status: "success",
+        reservationUpdated
+      });
+    })
+    .catch(err => res.status(500).send({
+      status: "error",
+      message: err.message
+    }));
+}
+
 module.exports = {
   saveReservation,
   reservationsList,
-  deleteReservation
+  deleteReservation,
+  editReservation
 }

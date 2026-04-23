@@ -11,4 +11,6 @@ router.post("/saveReservation", ReservationController.saveReservation);
 //DELETE
 router.delete("/deleteReservation/:id", ReservationController.deleteReservation);
 
+//PATCH
+router.patch("/editReservation/:id", ReservationController.editReservation);
 module.exports = router;
