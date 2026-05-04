@@ -23,6 +23,7 @@ app.use(express.urlencoded({ extenden: true }));
 app.use("/api/customers", require("./routers/customer"));
 app.use("/api/historial", require("./routers/historialDB"));
 app.use("/api/reservations", require("./routers/reservation"));
+app.use("/api/users", require("./routers/user"));
 
 //Endpoint de prueba
 app.get('/', (req, res) => {

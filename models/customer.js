@@ -19,11 +19,6 @@ const CustomerSchema = new Schema({
     required: true,
     uppercase: true,
   },
-  estate: {
-    type: String,
-    enum: ['HOY', 'ALDIA', 'VENCIDO'],
-    default: 'ALDIA'
-  },
   wasContacted: {
     type: Boolean,
     default: false
