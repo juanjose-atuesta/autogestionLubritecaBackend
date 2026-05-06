@@ -6,6 +6,10 @@ const UserSchema = new Schema({
     required: true,
     uppercase: true,
   },
+  id: {
+    type: String,
+    required: true
+  },
   telephone: {
     type: String,
     required: true,
@@ -13,7 +17,7 @@ const UserSchema = new Schema({
   },
   registrationDay: {
     type: String,
-    default: Date.year + '-' + (Date.month + 1) + '-' + Date.day
+    default: ""
   },
   recommendedUsers: {
     type: Array,

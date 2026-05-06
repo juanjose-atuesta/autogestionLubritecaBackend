@@ -15,7 +15,8 @@ connection();
 //configuracion de middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extenden: true }));
+// Permite parsear forms (application/x-www-form-urlencoded)
+app.use(express.urlencoded({ extended: true }));
 
 
 
