@@ -182,6 +182,26 @@ const editUser = (req, res) => {
     .catch(e => res.status(500).send({}));
 
 }
+
+const deleteUser = (req, res) => {
+  let id = req.params.id;
+  User.findOneAndDelete({ id: id })
+    .then(customerDeleted => {
+      if (!customerDeleted) return res.status(404).send({
+        status: "error",
+        message: "No se encontro"
+      });
+      return res.status(200).send({
+        status: "succes"
+      })
+    })
+    .catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al eliminar el cliente"
+      });
+    })
+}
 module.exports = {
   getUsers,
   addUser,
@@ -190,5 +210,6 @@ module.exports = {
   getRecommendedUsers,
   updatePoints,
   addRecommendedUser,
-  editUser
+  editUser,
+  deleteUser
 }
