@@ -25,7 +25,7 @@ app.use("/api/customers", require("./routers/customer"));
 app.use("/api/historial", require("./routers/historialDB"));
 app.use("/api/reservations", require("./routers/reservation"));
 app.use("/api/users", require("./routers/user"));
-
+app.use("/api/login", require("./routers/login"));
 //Endpoint de prueba
 app.get('/', (req, res) => {
   console.log('Recibida una solicitud GET en /');

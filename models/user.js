@@ -23,11 +23,26 @@ const UserSchema = new Schema({
     type: Array,
     default: []
   },
-  acommulatedPoints: {
+  pointsByRecommendation: {
     type: Number,
     default: 0
+  },
+  pointsByFrecuentBuy: {
+    type: Number,
+    default: 0
+  },
+  pointsByHightBuy: {
+    type: Number,
+    default: 0
+  },
+  wasContacted: {
+    type: Boolean,
+    default: false
+  },
+  recommendedMe: {
+    type: String,
+    default: ""
   }
-
 })
 
 module.exports = model("User", UserSchema, "users")

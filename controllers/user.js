@@ -165,6 +165,28 @@ const addRecommendedUser = async (req, res) => {
 
 }
 
+const setRecommended = async (req, res) => {
+  let id = req.params.id;
+  try {
+    const user = await User.findOne({ id: id });
+    if (!user) {
+      return res.status(404).send({
+        status: "error",
+        message: "No se encontro el cliente"
+      });
+    }
+    user.wasContacted = true;
+    await user.save();
+    return res.status(200).send({
+      status: "success",
+      userUpdated: user
+    });
+  } catch (e) {
+    return res.status(500).send({});
+  }
+}
+
+
 const editUser = (req, res) => {
   const id = req.params.id;
   const { name, idNew, registrationDay, telephone } = req.body;
@@ -202,6 +224,60 @@ const deleteUser = (req, res) => {
       });
     })
 }
+
+const getUsersNotContacted = async (req, res) => {
+  try {
+    const users = await User.find({ wasContacted: false });
+    return res.status(200).send({
+      status: "success",
+      users
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error al obtener usuarios no contactados"
+    });
+  }
+};
+
+const getRecommendedMe = async (req, res) => {
+  try {
+    const user = await User.findOne({ id: req.params.id });
+
+    if (!user) return res.status(404).send({
+      status: "error"
+    });
+    const recommendedMe = user.recommendedMe;
+    return res.status(200).send({
+      status: "success",
+      recommendedMe
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: "error"
+    });
+
+  }
+
+}
+
+const addRecommendedMe = (req, res) => {
+  const id = req.params.id;
+  const { recommendedMe } = req.body;
+  if (!id) {
+    return res.status(400).send({ status: "error", message: "No se proporcionó el id del usuario a editar" });
+  }
+  const camposActualizar = { recommendedMe };
+  User.findOneAndUpdate({ id: id }, { $set: camposActualizar }, { new: true })
+    .then(userUpdated => {
+      if (!userUpdated) return res.status(404).send({});
+      return res.status(200).send({
+        status: "success"
+      });
+    })
+    .catch(e => res.status(500).send({}));
+
+}
 module.exports = {
   getUsers,
   addUser,
@@ -211,5 +287,9 @@ module.exports = {
   updatePoints,
   addRecommendedUser,
   editUser,
-  deleteUser
+  deleteUser,
+  getUsersNotContacted,
+  setRecommended,
+  getRecommendedMe,
+  addRecommendedMe
 }
