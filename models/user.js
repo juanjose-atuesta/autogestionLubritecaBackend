@@ -23,6 +23,14 @@ const UserSchema = new Schema({
     type: Array,
     default: []
   },
+  highBuy: {
+    type: Array,
+    default: []
+  },
+  frecuentBuy: {
+    type: Array,
+    default: []
+  },
   pointsByRecommendation: {
     type: Number,
     default: 0
@@ -31,7 +39,11 @@ const UserSchema = new Schema({
     type: Number,
     default: 0
   },
-  pointsByHightBuy: {
+  pointsByHighBuy: {
+    type: Number,
+    default: 0
+  },
+  totalPoints: {
     type: Number,
     default: 0
   },
@@ -42,7 +54,13 @@ const UserSchema = new Schema({
   recommendedMe: {
     type: String,
     default: ""
+  },
+  email: {
+    type: String,
+    default: ""
   }
+
+
 })
 
 module.exports = model("User", UserSchema, "users")

@@ -59,6 +59,8 @@ const addUser = (req, res) => {
     })
 
 }
+//Esto aca tenemos que revisarlo 
+/*
 const updatePoints = async (req, res) => {
   let id = req.params.id;
   let pointsToAdd = req.body.delta;
@@ -121,7 +123,9 @@ const subtractPoint = async (req, res) => {
     return res.status(500).send({});
   }
 }
+*/
 
+// FUnciones de usuarios recomendados 
 const getRecommendedUsers = async (req, res) => {
   let id = req.params.id;
   try {
@@ -154,6 +158,7 @@ const addRecommendedUser = async (req, res) => {
       });
     }
     user.recommendedUsers.push(recommendedUserId);
+    user.pointsByRecommendation += 5;
     await user.save();
     return res.status(200).send({
       status: "success"
@@ -186,44 +191,6 @@ const setRecommended = async (req, res) => {
   }
 }
 
-
-const editUser = (req, res) => {
-  const id = req.params.id;
-  const { name, idNew, registrationDay, telephone } = req.body;
-  if (!id) {
-    return res.status(400).send({ status: "error", message: "No se proporcionó el id del usuario a editar" });
-  }
-  const camposActualizar = { name, idNew, registrationDay, telephone };
-  User.findOneAndUpdate({ id: id }, { $set: camposActualizar }, { new: true })
-    .then(userUpdated => {
-      if (!userUpdated) return res.status(404).send({});
-      return res.status(200).send({
-        status: "success"
-      });
-    })
-    .catch(e => res.status(500).send({}));
-
-}
-
-const deleteUser = (req, res) => {
-  let id = req.params.id;
-  User.findOneAndDelete({ id: id })
-    .then(customerDeleted => {
-      if (!customerDeleted) return res.status(404).send({
-        status: "error",
-        message: "No se encontro"
-      });
-      return res.status(200).send({
-        status: "succes"
-      })
-    })
-    .catch(e => {
-      return res.status(500).send({
-        status: "error",
-        message: "Error al eliminar el cliente"
-      });
-    })
-}
 
 const getUsersNotContacted = async (req, res) => {
   try {
@@ -278,18 +245,114 @@ const addRecommendedMe = (req, res) => {
     .catch(e => res.status(500).send({}));
 
 }
+
+const editUser = (req, res) => {
+  const id = req.params.id;
+  const { name, idNew, registrationDay, telephone, email } = req.body;
+  if (!id) {
+    return res.status(400).send({ status: "error", message: "No se proporcionó el id del usuario a editar" });
+  }
+  const camposActualizar = { name, idNew, registrationDay, telephone, email };
+  User.findOneAndUpdate({ id: id }, { $set: camposActualizar }, { new: true })
+    .then(userUpdated => {
+      if (!userUpdated) return res.status(404).send({});
+      return res.status(200).send({
+        status: "success"
+      });
+    })
+    .catch(e => res.status(500).send({}));
+
+}
+
+const deleteUser = (req, res) => {
+  let id = req.params.id;
+  User.findOneAndDelete({ id: id })
+    .then(customerDeleted => {
+      if (!customerDeleted) return res.status(404).send({
+        status: "error",
+        message: "No se encontro"
+      });
+      return res.status(200).send({
+        status: "succes"
+      })
+    })
+    .catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al eliminar el cliente"
+      });
+    })
+}
+
+//Funciones para agregar puntos 
+const addHighBuy = async (req, res) => {
+  let id = req.params.id
+  let idBill = req.body.idBill;
+  try {
+    const user = await User.findOne({ id: id });
+    if (!user) {
+      return res.status(404).send({});
+    }
+    if (!idBill) {
+      return res.status(400).send({
+        status: 'error',
+        message: 'Falta recommendedUserId'
+      });
+    }
+    user.highBuy.push(idBill);
+    user.pointsByHighBuy += 5;
+    await user.save();
+    return res.status(200).send({
+      status: "success"
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send({});
+  }
+
+}
+
+const addFrecuentBuy = async (req, res) => {
+  let id = req.params.id
+  let service = req.body.service;
+  try {
+    const user = await User.findOne({ id: id });
+    if (!user) {
+      return res.status(404).send({});
+    }
+    if (!service) {
+      return res.status(400).send({
+        status: 'error',
+        message: 'Falta recommendedUserId'
+      });
+    }
+    user.frecuentBuy.push(service);
+    user.pointsByFrecuentBuy += 5;
+    await user.save();
+    return res.status(200).send({
+      status: "success"
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send({});
+  }
+
+}
+
 module.exports = {
   getUsers,
   addUser,
-  addPoint,
-  subtractPoint,
+  //addPoint,
+  //subtractPoint,
   getRecommendedUsers,
-  updatePoints,
+  //updatePoints,
   addRecommendedUser,
   editUser,
   deleteUser,
   getUsersNotContacted,
   setRecommended,
   getRecommendedMe,
-  addRecommendedMe
+  addRecommendedMe,
+  addHighBuy,
+  addFrecuentBuy
 }

@@ -15,8 +15,12 @@ router.delete("/deleteUser/:id", UserController.deleteUser);
 
 //PATH 
 router.patch("/addRecommendedMe/:id", UserController.addRecommendedMe);
-router.patch("/updatePoints/:id", UserController.updatePoints);
+//router.patch("/updatePoints/:id", UserController.updatePoints);
 router.patch("/addRecommendedUser/:id", UserController.addRecommendedUser);
 router.patch("/editUser/:id", UserController.editUser);
 router.patch("/setRecommended/:id", UserController.setRecommended);
+router.patch("/addHighBuy/:id", UserController.addHighBuy);
+router.patch("/addFrecuentBuy/:id", UserController.addFrecuentBuy);
+
+
 module.exports = router
