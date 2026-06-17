@@ -1,0 +1,26 @@
+const Pedido = require("../models/pedidos");
+
+
+const getPedidos = (req, res) => {
+  Pedido.find()
+    .then(users => {
+      if (!users) return res.status(404).send({
+        status: "error",
+        message: "No se encontraron pedidos"
+      });
+
+      return res.status(200).send({
+        status: "success",
+        users
+      });
+    })
+    .catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al obtener los pedidos"
+      })
+    })
+}
+module.exports = {
+
+}
