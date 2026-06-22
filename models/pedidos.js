@@ -1,91 +1,77 @@
 const { Schema, model } = require('mongoose');
+
 const PedidosSchema = new Schema({
   vehicleMake: {
     type: String,
     default: "",
-    require: true
+    required: true
   },
   name: {
     type: String,
     default: "",
-    require: true
+    required: true
   },
   id: {
     type: String,
     default: "",
-    require: true
+    required: true
   },
   telephone: {
     type: String,
     default: "",
-    require: true
+    required: true
   },
   email: {
     type: String,
-    default: "",
-    require: true
-
+    default: ""
   },
-
   orden: {
     type: String,
     default: "",
-    require: true
+    required: true
   },
   EL: {
-
     type: String,
-    default: "",
-    require: true
+    default: ""
   },
-
   plate: {
     type: String,
     default: "",
-    require: true
-
+    required: true
   },
   mileage: {
     type: String,
     default: "",
-    require: true
-
+    required: true
   },
+  // Cada item de estos arreglos es: [cantidad(Number), referencia(String), precioUnitario(Number)]
   oil: {
     type: Array,
-    require: true,
     default: [],
-
   },
   FAire: {
     type: Array,
-    require: true,
     default: [],
   },
   FComb: {
     type: Array,
-    require: true,
     default: [],
   },
   FAA: {
     type: Array,
-    require: true,
     default: []
   },
+  // otros es una lista de filas dinámicas, cada una [cantidad, referencia, precioUnitario]
   otros: {
     type: Array,
-    require: true,
     default: [],
   },
   precioTotal: {
     type: Number,
-    require: true,
     default: 0
   }
-
-
-
-
-})
+}, {
+  timestamps: true
+});
 
 module.exports = model("Pedido", PedidosSchema, "pedidos");

@@ -21,6 +21,7 @@ router.patch("/editUser/:id", UserController.editUser);
 router.patch("/setRecommended/:id", UserController.setRecommended);
 router.patch("/addHighBuy/:id", UserController.addHighBuy);
 router.patch("/addFrecuentBuy/:id", UserController.addFrecuentBuy);
-
+router.get('/rankingUsuarios', UserController.getRankingUsuarios);
+router.patch('/editPoints/:id', UserController.editPoints);
 
 module.exports = router

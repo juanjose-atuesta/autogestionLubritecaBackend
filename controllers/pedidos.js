@@ -1,72 +1,109 @@
 const Pedido = require("../models/pedidos");
 
+// Calcula el total sumando cantidad * precioUnitario de cada fila
+// de cada arreglo de items (oil, FAire, FComb, FAA, otros).
+// Cada fila tiene la forma [cantidad, referencia, precioUnitario].
+function calcularPrecioTotal(body) {
+  const grupos = [body.oil, body.FAire, body.FComb, body.FAA, body.otros];
+  let total = 0;
+
+  grupos.forEach(grupo => {
+    if (!Array.isArray(grupo)) return;
+    grupo.forEach(fila => {
+      if (!Array.isArray(fila)) return;
+      const cantidad = Number(fila[0]) || 0;
+      const precioUnitario = Number(fila[2]) || 0;
+      total += cantidad * precioUnitario;
+    });
+  });
+
+  return total;
+}
 
 const getPedidos = (req, res) => {
   Pedido.find()
-    .then(users => {
-      if (!users) return res.status(404).send({
+    .sort({ createdAt: -1 })
+    .then(pedidos => {
+      if (!pedidos) return res.status(404).send({
         status: "error",
         message: "No se encontraron pedidos"
       });
-
       return res.status(200).send({
         status: "success",
-        users
+        pedidos
       });
     })
     .catch(e => {
       return res.status(500).send({
         status: "error",
         message: "Error al obtener los pedidos"
-      })
+      });
+    });
+};
+
+const getPedidoById = (req, res) => {
+  const id = req.params.id;
+  Pedido.findById(id)
+    .then(pedido => {
+      if (!pedido) return res.status(404).send({
+        status: "error",
+        message: "No se encontró el pedido"
+      });
+      return res.status(200).send({
+        status: "success",
+        pedido
+      });
     })
-}
+    .catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al obtener el pedido"
+      });
+    });
+};
 
 const addPedido = (req, res) => {
   let body = req.body;
+  body.precioTotal = calcularPrecioTotal(body);
+
   let pedidoToSave = new Pedido(body);
   pedidoToSave.save()
-    .then(userSaved => {
-      if (!userSaved) return res.status(404).send({
+    .then(pedidoSaved => {
+      if (!pedidoSaved) return res.status(404).send({
         status: "error",
         message: "No se pudo guardar el pedido"
-      })
+      });
       return res.status(200).send({
         status: "success",
-        userSaved
-      })
+        pedidoSaved
+      });
     })
     .catch(e => {
-      // Evita responder 500 por errores esperables (validación / duplicados)
       if (e?.name === 'ValidationError') {
         return res.status(400).send({
           status: 'error',
-          message: 'Datos inválidos para crear el usuario',
+          message: 'Datos inválidos para crear el pedido',
           details: Object.fromEntries(Object.entries(e.errors || {}).map(([k, v]) => [k, v?.message]))
         });
       }
-      // Duplicado por índice unique (por ejemplo id repetido)
       if (e?.code === 11000) {
         return res.status(409).send({
           status: 'error',
-          message: 'El usuario ya existe (campo único duplicado)',
+          message: 'El pedido ya existe (campo único duplicado)',
           duplicateKey: e?.keyValue || e?.keyPattern
         });
       }
-      console.error('Error addUser:', e);
+      console.error('Error addPedido:', e);
       return res.status(500).send({
         status: "error",
-        message: "Error interno al guardar el usuario"
+        message: "Error interno al guardar el pedido"
       });
-    })
-
-}
-
-
+    });
+};
 
 const editPedido = (req, res) => {
   const idPedido = req.params.id;
-  const { vehicleMake, name, id, telephone, email, orden, EL, plate, mileage, oil, FAire, AComb, FAA, otros, precioTotal } = req.body;
+  const { vehicleMake, name, id, telephone, email, orden, EL, plate, mileage, oil, FAire, FComb, FAA, otros } = req.body;
 
   if (!idPedido) {
     return res.status(400).send({
@@ -75,31 +112,65 @@ const editPedido = (req, res) => {
     });
   }
 
-  const camposActualizar = { vehicleMake, name, id, telephone, email, orden, EL, plate, mileage, oil, FAire, AComb, FAA, otros, precioTotal };
+  const camposActualizar = {
+    vehicleMake, name, id, telephone, email, orden, EL, plate, mileage, oil, FAire, FComb, FAA, otros
+  };
+  camposActualizar.precioTotal = calcularPrecioTotal(camposActualizar);
 
-  Customer.findOneAndUpdate(
-    { id: idPedido },
+  Pedido.findByIdAndUpdate(
+    idPedido,
     { $set: camposActualizar },
-    { new: true }
+    { new: true, runValidators: true }
   )
-    .then(customerUpdated => {
-      if (!customerUpdated) return res.status(404).send({
+    .then(pedidoUpdated => {
+      if (!pedidoUpdated) return res.status(404).send({
         status: "error",
-        message: "No se encontró el cliente"
+        message: "No se encontró el pedido"
       });
       return res.status(200).send({
         status: "success",
-        customerUpdated
+        pedidoUpdated
       });
     })
-    .catch(err => res.status(500).send({
-      status: "error",
-      message: err.message
-    }));
-}
+    .catch(err => {
+      if (err?.name === 'ValidationError') {
+        return res.status(400).send({
+          status: 'error',
+          message: 'Datos inválidos para editar el pedido',
+          details: Object.fromEntries(Object.entries(err.errors || {}).map(([k, v]) => [k, v?.message]))
+        });
+      }
+      return res.status(500).send({
+        status: "error",
+        message: err.message
+      });
+    });
+};
+
+const deletePedido = (req, res) => {
+  const idPedido = req.params.id;
+  Pedido.findByIdAndDelete(idPedido)
+    .then(pedidoDeleted => {
+      if (!pedidoDeleted) return res.status(404).send({
+        status: "error",
+        message: "No se encontró el pedido"
+      });
+      return res.status(200).send({
+        status: "success"
+      });
+    })
+    .catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al eliminar el pedido"
+      });
+    });
+};
 
 module.exports = {
   getPedidos,
+  getPedidoById,
   addPedido,
-  editPedido
-}
+  editPedido,
+  deletePedido
+};

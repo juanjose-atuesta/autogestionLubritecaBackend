@@ -159,6 +159,7 @@ const addRecommendedUser = async (req, res) => {
     }
     user.recommendedUsers.push(recommendedUserId);
     user.pointsByRecommendation += 5;
+    user.totalPoints += 5;
     await user.save();
     return res.status(200).send({
       status: "success"
@@ -301,6 +302,7 @@ const addHighBuy = async (req, res) => {
     }
     user.highBuy.push(idBill);
     user.pointsByHighBuy += 5;
+    user.totalPoints += 5;
     await user.save();
     return res.status(200).send({
       status: "success"
@@ -328,6 +330,7 @@ const addFrecuentBuy = async (req, res) => {
     }
     user.frecuentBuy.push(service);
     user.pointsByFrecuentBuy += 5;
+    user.totalPoints += 5;
     await user.save();
     return res.status(200).send({
       status: "success"
@@ -338,6 +341,50 @@ const addFrecuentBuy = async (req, res) => {
   }
 
 }
+
+// Editar puntos de un usuario y recalcular totalPoints
+const editPoints = async (req, res) => {
+  const id = req.params.id;
+  const {
+    pointsByRecommendation,
+    pointsByFrecuentBuy,
+    pointsByHighBuy
+  } = req.body;
+
+  try {
+    const user = await User.findOne({ id });
+    if (!user) return res.status(404).send({ status: 'error', message: 'Usuario no encontrado' });
+
+    // Solo actualiza los campos que vengan en el body
+    if (pointsByRecommendation !== undefined) user.pointsByRecommendation = Number(pointsByRecommendation) || 0;
+    if (pointsByFrecuentBuy !== undefined) user.pointsByFrecuentBuy = Number(pointsByFrecuentBuy) || 0;
+    if (pointsByHighBuy !== undefined) user.pointsByHighBuy = Number(pointsByHighBuy) || 0;
+
+    // Recalcular total
+    user.totalPoints = user.pointsByRecommendation + user.pointsByFrecuentBuy + user.pointsByHighBuy;
+
+    await user.save();
+    return res.status(200).send({ status: 'success', userUpdated: user });
+  } catch (e) {
+    console.error('Error editPoints:', e);
+    return res.status(500).send({ status: 'error', message: 'Error al actualizar puntos' });
+  }
+};
+
+// Obtener ranking de usuarios por puntos (para estadísticas)
+const getRankingUsuarios = async (req, res) => {
+  try {
+    const users = await User.find(
+      {},
+      'name id pointsByRecommendation pointsByFrecuentBuy pointsByHighBuy totalPoints'
+    ).sort({ totalPoints: -1 });
+
+    return res.status(200).send({ status: 'success', users });
+  } catch (e) {
+    return res.status(500).send({ status: 'error', message: 'Error al obtener ranking' });
+  }
+};
+
 
 module.exports = {
   getUsers,
@@ -354,5 +401,7 @@ module.exports = {
   getRecommendedMe,
   addRecommendedMe,
   addHighBuy,
-  addFrecuentBuy
+  addFrecuentBuy,
+  getRankingUsuarios,
+  editPoints
 }
