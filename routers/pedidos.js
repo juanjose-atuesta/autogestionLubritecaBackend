@@ -7,5 +7,5 @@ router.get('/getPedido/:id', PedidosController.getPedidoById);
 router.post('/addPedido', PedidosController.addPedido);
 router.patch('/editPedido/:id', PedidosController.editPedido);
 router.delete('/deletePedido/:id', PedidosController.deletePedido);
-
+router.get('/getPedidosDeHoy', PedidosController.getPedidosDeHoy);
 module.exports = router;

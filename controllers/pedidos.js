@@ -166,11 +166,35 @@ const deletePedido = (req, res) => {
       });
     });
 };
+const getPedidosDeHoy = async (req, res) => {
+  try {
+    const ahoraBogota = new Date(
+      new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' })
+    );
+    const inicioDia = new Date(ahoraBogota);
+    inicioDia.setHours(0, 0, 0, 0);
+    const finDia = new Date(ahoraBogota);
+    finDia.setHours(23, 59, 59, 999);
 
+    // Convertir a UTC para la query de Mongo
+    const offsetMs = ahoraBogota.getTime() - new Date().getTime();
+    const inicioDiaUTC = new Date(inicioDia.getTime() - offsetMs);
+    const finDiaUTC = new Date(finDia.getTime() - offsetMs);
+
+    const pedidos = await Pedido.find({
+      updatedAt: { $gte: inicioDiaUTC, $lte: finDiaUTC }
+    }).sort({ updatedAt: -1 });
+
+    return res.status(200).send({ status: 'success', pedidos });
+  } catch (e) {
+    return res.status(500).send({ status: 'error', message: 'Error al obtener pedidos de hoy' });
+  }
+};
 module.exports = {
   getPedidos,
   getPedidoById,
   addPedido,
   editPedido,
-  deletePedido
+  deletePedido,
+  getPedidosDeHoy
 };
