@@ -2,13 +2,12 @@
 const { Schema, model } = require('mongoose');
 const EventoSchema = new Schema({
   value: {
-    type: Numeric,
+    type: Number,
     required: true
   },
   id: {
     type: String,
-    required: true,
-    default: "1"
+    required: true
   }
 });
 

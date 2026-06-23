@@ -27,7 +27,7 @@ app.use("/api/reservations", require("./routers/reservation"));
 app.use("/api/users", require("./routers/user"));
 app.use("/api/login", require("./routers/login"));
 app.use("/api/pedidos", require("./routers/pedidos"));
-app.use("api/eventos", require("./routers/eventos.js"));
+app.use("/api/eventos", require("./routers/eventos"));
 //Endpoint de prueba
 app.get('/', (req, res) => {
   console.log('Recibida una solicitud GET en /');
