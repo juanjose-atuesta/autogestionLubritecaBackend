@@ -119,11 +119,15 @@ const toggleWasContacted = async (req, res) => {
     // Cambia el valor al contrario
     customer.wasContacted = !customer.wasContacted;
     await customer.save();
-    notificar('cliente-editado', { id: customer._id });
-    return res.status(200).send({
+    res.status(200).send({
       status: "success",
       customerUpdated: customer
     });
+
+    // Notificar después de responder, con un pequeño delay
+    setTimeout(() => {
+      notificar('cliente-editado', { id: customer._id });
+    }, 100);
   } catch (e) {
     return res.status(500).send({
       status: "error",
