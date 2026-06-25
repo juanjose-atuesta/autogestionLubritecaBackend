@@ -28,6 +28,9 @@ app.use("/api/users", require("./routers/user"));
 app.use("/api/login", require("./routers/login"));
 app.use("/api/pedidos", require("./routers/pedidos"));
 app.use("/api/eventos", require("./routers/eventos"));
+
+const sseRouter = require('./routers/sse'); // o donde la pongas
+app.use('/api/', sseRouter); // queda en /api/eventos
 //Endpoint de prueba
 app.get('/', (req, res) => {
   console.log('Recibida una solicitud GET en /');

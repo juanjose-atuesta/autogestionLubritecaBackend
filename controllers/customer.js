@@ -1,6 +1,9 @@
 const Customer = require("../models/customer");
 
-//Creamos los metodos 
+// En pedidos.controller.js
+const { notificar } = require('../utils/sse');
+//Creamos los metodos
+
 
 const getCustomers = (req, res) => {
   Customer.find()
@@ -33,6 +36,7 @@ const addCustomer = (req, res) => {
         status: "error",
         message: "No se pudo guardar el cliente"
       })
+      notificar('cliente-creado', { id: clienteToSave._id })
       return res.status(200).send({
         status: "success",
         clienteSaved
@@ -44,89 +48,6 @@ const addCustomer = (req, res) => {
         message: "Error al guardar el cliente"
       });
     })
-}
-
-const listByPlate = (req, res) => {
-  let plate = req.params.plate;
-  Customer.find({ plate: plate })
-    .then(customer => {
-      if (!customer) return res.status(404).send({
-        status: "error",
-        message: "No se encontro el cliente"
-      });
-      return res.status(200).send({
-        status: "success",
-        customerList: customer
-      });
-    })
-    .catch(e => {
-      return res.status(500).send({
-        status: "error",
-        message: "Error al obtener el cliente"
-      });
-    });
-}
-
-const listByName = (req, res) => {
-  let name = req.params.name;
-  Customer.find({ name: { $regex: name, $options: `i` } })
-    .then(customer => {
-      if (!customer) return res.status(404).send({
-        status: "error",
-        message: "No se encontro el cliente"
-      });
-      return res.status(200).send({
-        status: "success",
-        customerList: customer
-      });
-    })
-    .catch(e => {
-      return res.status(500).send({
-        status: "error",
-        message: "Error al obtener el cliente"
-      });
-    });
-}
-const listByTelephone = (req, res) => {
-  let telephone = req.params.telephone;
-  Customer.find({ telephone: { $regex: telephone, $options: `i` } })
-    .then(customer => {
-      if (!customer) return res.status(404).send({
-        status: "error",
-        message: "No se encontro el cliente"
-      });
-      return res.status(200).send({
-        status: "success",
-        customerList: customer
-      });
-    })
-    .catch(e => {
-      return res.status(500).send({
-        status: "error",
-        message: "Error al obtener el cliente"
-      });
-    });
-}
-
-const listByService = (req, res) => {
-  let service = req.params.service;
-  Customer.find({ service: { $regex: service, $options: `i` } })
-    .then(customer => {
-      if (!customer) return res.status(404).send({
-        status: "error",
-        message: "No se encontro el cliente"
-      });
-      return res.status(200).send({
-        status: "success",
-        customerList: customer
-      });
-    })
-    .catch(e => {
-      return res.status(500).send({
-        status: "error",
-        message: "Error al obtener el cliente"
-      });
-    });
 }
 
 const listCustomersContacted = (req, res) => {
@@ -172,6 +93,7 @@ const editCustomer = (req, res) => {
         status: "error",
         message: "No se encontró el cliente"
       });
+      notificar('cliente-editado', { id: customerUpdated._id })
       return res.status(200).send({
         status: "success",
         customerUpdated
@@ -197,6 +119,7 @@ const toggleWasContacted = async (req, res) => {
     // Cambia el valor al contrario
     customer.wasContacted = !customer.wasContacted;
     await customer.save();
+    notificar('cliente-editado', { id: customer._id });
     return res.status(200).send({
       status: "success",
       customerUpdated: customer
@@ -218,6 +141,7 @@ const deleteCustomer = (req, res) => {
         status: "error",
         message: "No se encontro el cliente"
       });
+      notificar('cliente-eliminado', { id: customerDeleted._id });
       return res.status(200).send({
         status: "success",
         customerDeleted
@@ -230,6 +154,5 @@ const deleteCustomer = (req, res) => {
     })
 }
 module.exports = {
-  getCustomers, addCustomer, listByPlate, listByName,
-  listByTelephone, listByService, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer
+  getCustomers, addCustomer, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer
 };
