@@ -1,5 +1,6 @@
 const User = require("../models/user");
 
+const { notificar } = require('../utils/sse');
 const getUsers = (req, res) => {
   User.find()
     .then(users => {
