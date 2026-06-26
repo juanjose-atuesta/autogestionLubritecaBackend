@@ -1,5 +1,5 @@
 const Pedido = require("../models/pedidos");
-
+const { notificar } = require('../utils/sse');
 // Calcula el total sumando cantidad * precioUnitario de cada fila
 // de cada arreglo de items (oil, FAire, FComb, FAA, otros).
 // Cada fila tiene la forma [cantidad, referencia, precioUnitario].
