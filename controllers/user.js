@@ -29,10 +29,11 @@ const addUser = (req, res) => {
         status: "error",
         message: "No se pudo guardar el usuario"
       })
-      return res.status(200).send({
+      res.status(200).send({
         status: "success",
         userSaved
       })
+      notificar('usuario-agregado', { id: userSaved._id });
     })
     .catch(e => {
       // Evita responder 500 por errores esperables (validación / duplicados)
@@ -161,9 +162,10 @@ const addRecommendedUser = async (req, res) => {
     user.pointsByRecommendation += 5;
     user.totalPoints += 5;
     await user.save();
-    return res.status(200).send({
+    res.status(200).send({
       status: "success"
     });
+    notificar('usuarioRecomendado-agregado', { id: user._id });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -183,10 +185,11 @@ const setRecommended = async (req, res) => {
     }
     user.wasContacted = true;
     await user.save();
-    return res.status(200).send({
+    res.status(200).send({
       status: "success",
       userUpdated: user
     });
+    notificar('meRecomendaron-editado', { id: user._id });
   } catch (e) {
     return res.status(500).send({});
   }
@@ -239,9 +242,10 @@ const addRecommendedMe = (req, res) => {
   User.findOneAndUpdate({ id: id }, { $set: camposActualizar }, { new: true })
     .then(userUpdated => {
       if (!userUpdated) return res.status(404).send({});
-      return res.status(200).send({
+      res.status(200).send({
         status: "success"
       });
+      notificar('meRecomendo-agregado', { id: userUpdated._id });
     })
     .catch(e => res.status(500).send({}));
 
@@ -257,9 +261,10 @@ const editUser = (req, res) => {
   User.findOneAndUpdate({ id: id }, { $set: camposActualizar }, { new: true })
     .then(userUpdated => {
       if (!userUpdated) return res.status(404).send({});
-      return res.status(200).send({
+      res.status(200).send({
         status: "success"
       });
+      notificar('usuario-editado', { id: userUpdated._id });
     })
     .catch(e => res.status(500).send({}));
 
@@ -278,10 +283,11 @@ const deleteUser = (req, res) => {
       })
     })
     .catch(e => {
-      return res.status(500).send({
+      res.status(500).send({
         status: "error",
         message: "Error al eliminar el cliente"
       });
+      notificar('usuario-eliminado', { id: customerDeleted._id });
     })
 }
 
@@ -304,9 +310,10 @@ const addHighBuy = async (req, res) => {
     user.pointsByHighBuy += 5;
     user.totalPoints += 5;
     await user.save();
-    return res.status(200).send({
+    res.status(200).send({
       status: "success"
     });
+    notificar('agregarPuntos-compraAlta', { id: user._id });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -332,9 +339,10 @@ const addFrecuentBuy = async (req, res) => {
     user.pointsByFrecuentBuy += 5;
     user.totalPoints += 5;
     await user.save();
-    return res.status(200).send({
+    res.status(200).send({
       status: "success"
     });
+    notificar('agregarPuntos-compraRecurrente', { id: user._id });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -364,7 +372,8 @@ const editPoints = async (req, res) => {
     user.totalPoints = user.pointsByRecommendation + user.pointsByFrecuentBuy + user.pointsByHighBuy;
 
     await user.save();
-    return res.status(200).send({ status: 'success', userUpdated: user });
+    res.status(200).send({ status: 'success', userUpdated: user });
+    notificar('puntosEditados', { id: user._id });
   } catch (e) {
     console.error('Error editPoints:', e);
     return res.status(500).send({ status: 'error', message: 'Error al actualizar puntos' });

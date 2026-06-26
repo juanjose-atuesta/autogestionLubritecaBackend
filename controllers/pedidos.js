@@ -73,10 +73,11 @@ const addPedido = (req, res) => {
         status: "error",
         message: "No se pudo guardar el pedido"
       });
-      return res.status(200).send({
+      res.status(200).send({
         status: "success",
         pedidoSaved
       });
+      notificiar('pedido-agregado', { id: pedidoSaved._id });
     })
     .catch(e => {
       if (e?.name === 'ValidationError') {
@@ -127,10 +128,11 @@ const editPedido = (req, res) => {
         status: "error",
         message: "No se encontró el pedido"
       });
-      return res.status(200).send({
+      res.status(200).send({
         status: "success",
         pedidoUpdated
       });
+      notificar('pedido-editado', { id: pedidoUpdated._id });
     })
     .catch(err => {
       if (err?.name === 'ValidationError') {
@@ -155,9 +157,10 @@ const deletePedido = (req, res) => {
         status: "error",
         message: "No se encontró el pedido"
       });
-      return res.status(200).send({
+      res.status(200).send({
         status: "success"
       });
+      notificar('pedido-eliminado', { id: pedidoDeleted._id });
     })
     .catch(e => {
       return res.status(500).send({
