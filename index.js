@@ -28,7 +28,8 @@ app.use("/api/users", require("./routers/user"));
 app.use("/api/login", require("./routers/login"));
 app.use("/api/pedidos", require("./routers/pedidos"));
 app.use("/api/eventos", require("./routers/eventos"));
-
+const loginAdminRouter = require('./routes/loginAdmin');
+app.use('/api/loginAdmin', loginAdminRouter);
 app.use('/api/', require("./routers/sse")); // queda en /api/eventos
 //Endpoint de prueba
 app.get('/', (req, res) => {
