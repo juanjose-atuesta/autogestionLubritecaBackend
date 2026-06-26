@@ -1,5 +1,6 @@
 const Reservation = require("../models/reservation");
 
+const { notificar } = require('../utils/sse');
 const saveReservation = (req, res) => {
   let body = req.body;
   let reservationToSave = new Reservation(body);
@@ -9,10 +10,13 @@ const saveReservation = (req, res) => {
         status: "error",
         message: "No se pudo guardar la reserva"
       })
-      return res.status(200).send({
+      res.status(200).send({
         status: "success",
         reservationSaved
       });
+
+      notificar('reserva-agregada', { id: reservationSaved._id });
+
 
     }).catch(e => {
       return res.status(500).send({
@@ -49,10 +53,12 @@ const deleteReservation = (req, res) => {
         status: "error",
         message: "No se encontro la reserva"
       });
-      return res.status(200).send({
+      res.status(200).send({
         status: "success",
         reservationDeleted
       });
+      notificar("reserva-eliminada", { id: reservationDeleted._id });
+
     }).catch(e => {
       return res.status(500).send({
         status: "error",
@@ -83,10 +89,11 @@ const editReservation = (req, res) => {
         status: "error",
         message: "No se encontró el cliente"
       });
-      return res.status(200).send({
+      res.status(200).send({
         status: "success",
         reservationUpdated
       });
+      notificar("reserva-editada", { id: reservationUpdated._id });
     })
     .catch(err => res.status(500).send({
       status: "error",

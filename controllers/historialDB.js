@@ -1,4 +1,5 @@
 const HistorialDB = require('../models/historialDB');
+const { notificar } = require('../utils/sse');
 
 const saveToHistorialDB = (req, res) => {
   let body = req.body;
@@ -9,10 +10,11 @@ const saveToHistorialDB = (req, res) => {
         status: "error",
         message: "No se pudo guardar el historialDB"
       });
-      return res.status(200).send({
+      res.status(200).send({
         status: "success",
         historialDBSaved
       });
+      notificar('historial-guardado', { id: historialDBSaved._id });
     }).catch(e => {
       return res.status(500).send({
         status: "error",

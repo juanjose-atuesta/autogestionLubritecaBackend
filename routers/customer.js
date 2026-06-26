@@ -9,10 +9,6 @@ const CustomerController = require("../controllers/customer");
 //Crear rutas
 //GET 
 router.get("/customersList", CustomerController.getCustomers);
-router.get("/listByPlate/:plate", CustomerController.listByPlate);
-router.get("/listByName/:name", CustomerController.listByName);
-router.get("/listByTelephone/:telephone", CustomerController.listByTelephone);
-router.get("/listByService/:service", CustomerController.listByService);
 router.get("/listCustomersContacted", CustomerController.listCustomersContacted);
 
 

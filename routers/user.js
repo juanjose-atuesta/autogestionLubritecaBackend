@@ -8,6 +8,7 @@ router.get("/usersList", UserController.getUsers);
 router.get("/recommendedUsers/:id", UserController.getRecommendedUsers);
 router.get("/usersNotContacted", UserController.getUsersNotContacted);
 router.get("/getRecommendedMe/:id", UserController.getRecommendedMe);
+router.get('/availableToRecommend/:id', UserController.getAvailableUsersToRecommend);
 //POST 
 router.post("/addUser", UserController.addUser);
 //DELETE 
