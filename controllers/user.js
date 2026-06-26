@@ -393,7 +393,38 @@ const getRankingUsuarios = async (req, res) => {
     return res.status(500).send({ status: 'error', message: 'Error al obtener ranking' });
   }
 };
+// En user.js (controlador)
+const getAvailableUsersToRecommend = async (req, res) => {
+  const origenId = String(req.params.id || '').trim();
+  if (!origenId) {
+    return res.status(400).send({ status: 'error', message: 'Falta el id del usuario origen' });
+  }
 
+  try {
+    // El usuario origen
+    const usuarioOrigen = await User.findOne({ id: origenId });
+    if (!usuarioOrigen) {
+      return res.status(404).send({ status: 'error', message: 'Usuario no encontrado' });
+    }
+
+    // ID de quien lo recomendó (para excluirlo)
+    const idQueMeRecomendo = String(usuarioOrigen.recommendedMe || '').trim();
+
+    // Traer todos los no contactados, excluyendo origen y quien lo recomendó
+    const exclusiones = [origenId];
+    if (idQueMeRecomendo) exclusiones.push(idQueMeRecomendo);
+
+    const usuarios = await User.find({
+      wasContacted: false,
+      id: { $nin: exclusiones }
+    });
+
+    return res.status(200).send({ status: 'success', users: usuarios });
+  } catch (e) {
+    console.error('Error getAvailableUsersToRecommend:', e);
+    return res.status(500).send({ status: 'error', message: 'Error interno' });
+  }
+};
 
 module.exports = {
   getUsers,
@@ -412,5 +443,6 @@ module.exports = {
   addHighBuy,
   addFrecuentBuy,
   getRankingUsuarios,
-  editPoints
+  editPoints,
+  getAvailableUsersToRecommend
 }
