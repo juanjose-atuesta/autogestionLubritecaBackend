@@ -77,7 +77,7 @@ const addPedido = (req, res) => {
         status: "success",
         pedidoSaved
       });
-      notificiar('pedido-agregado', { id: pedidoSaved._id });
+      notificar('pedido-agregado', { id: pedidoSaved._id });
     })
     .catch(e => {
       if (e?.name === 'ValidationError') {
