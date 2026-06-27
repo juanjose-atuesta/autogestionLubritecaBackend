@@ -8,6 +8,11 @@ const LoginSchema = new Schema({
     type: String,
     required: true,
     unique: true
+  },
+  role: {
+    type: String,
+    require: true,
+    default: "worker"
   }
 })
 
