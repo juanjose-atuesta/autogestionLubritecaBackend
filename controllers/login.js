@@ -13,7 +13,7 @@ const validateLogin = async (req, res) => {
     }
     return res.status(200).send({
       status: true,
-      message: "Login exitoso"
+      role: login.role
     })
   } catch (e) {
     return res.status(500).send({ status: false, message: "Error en el servidor" });
