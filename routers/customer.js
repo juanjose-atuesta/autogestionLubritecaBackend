@@ -10,7 +10,7 @@ const CustomerController = require("../controllers/customer");
 //GET 
 router.get("/customersList", CustomerController.getCustomers);
 router.get("/listCustomersContacted", CustomerController.listCustomersContacted);
-
+router.get("/customersListPanelPrincipal", CustomerController.getCustomersPrincipalPanel);
 
 //POST
 router.post("/addCustomer", CustomerController.addCustomer);
