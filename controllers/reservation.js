@@ -27,7 +27,7 @@ const saveReservation = (req, res) => {
 }
 
 const reservationsList = (req, res) => {
-  Reservation.find()
+  Reservation.find({ wasConcluded: false })
     .then(reservationList => {
       if (!reservationList) return res.status(404).send({
         status: "error",
@@ -100,10 +100,61 @@ const editReservation = (req, res) => {
       message: err.message
     }));
 }
+const toggleWasConcluded = async (req, res) => {
+  const reservationId = req.params.id;
+  try {
+    const reservation = await Reservation.findOne({ reservationId: reservationId });
+    if (!reservation) {
+      return res.status(404).send({
+        status: "error",
+        message: "No se encontro la cita"
+      });
+    }
+    reservation.wasConcluded = true;
+    await reservation.save();
+    res.status(200).send({
+      status: "succes",
+      reservation: reservation
+    })
 
+    notificar('reservacion-concluida', { id: reservation._id });
+  }
+  catch (e) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error al actualizar el cliente"
+    });
+  }
+}
+
+const getReservationsConcluded = async (req, res) => {
+  Reservation.find({ wasConcluded: true })
+    .then(reservations => {
+      if (!reservations) return res.status(404).send({
+        status: "error",
+        message: "No se encontraron clientes"
+      });
+
+
+      res.status(200).send({
+        status: "success",
+        reservations
+      });
+
+    })
+    .catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al obtener los clientes"
+      });
+    });
+
+}
 module.exports = {
   saveReservation,
   reservationsList,
   deleteReservation,
-  editReservation
+  editReservation,
+  toggleWasConcluded,
+  getReservationsConcluded
 }

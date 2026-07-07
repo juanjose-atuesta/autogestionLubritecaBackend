@@ -43,6 +43,10 @@ const ReservationSchema = new Schema({
   },
   notes: {
     type: String
+  },
+  wasConcluded: {
+    type: Boolean,
+    default: false
   }
 
 
