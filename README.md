@@ -39,24 +39,54 @@ backend/
 
 ---
 
-## 🚀 Puesta en marcha
-
-### 1. Instalar dependencias
+## 🚀 Instalación
 
 ```bash
+# 1) Clonar el repositorio
+git clone https://github.com/juanjose-atuesta/autogestionLubritecaBackend.git
+
+# 2) Entrar al proyecto
+cd autogestionLubritecaBackend
+
+# 3) Instalar dependencias
 npm install
-```
 
-### 2. Levantar el servidor
-
-```bash
+# 4) Prueba rápida de arranque
 npm start
+# Salir de la ejecución con: Ctrl + C
+
+# 5) Instalar PM2 globalmente
+npm install -g pm2
+
+# 6) Ejecutar el servidor con PM2
+pm2 start index.js
 ```
 
 Servidor por defecto: **`http://localhost:3000`**
 
 > Actualmente la conexión a MongoDB está definida en código como:
 > `mongodb://127.0.0.1:27017/autogestionLubritecaDB`
+
+---
+
+## 🔄 Instrucciones para actualizaciones
+
+```bash
+# 1) Entrar al directorio del proyecto clonado
+cd autogestionLubritecaBackend
+
+# 2) Detener el proceso actual en PM2
+pm2 stop index.js
+
+# 3) Traer cambios desde main
+git pull origin main
+
+# Si hay conflictos y quieres aceptar los cambios remotos:
+git pull -X theirs origin main
+
+# 4) Volver a iniciar el servidor
+pm2 start index.js
+```
 
 ---
 

@@ -27,6 +27,30 @@ const getCustomers = (req, res) => {
       });
     });
 }
+
+const getCustomersPrincipalPanel = (req, res) => {
+  Customer.find({ wasContacted: false })
+    .then(customers => {
+      if (!customers) return res.status(404).send({
+        status: "error",
+        message: "No se encontraron clientes"
+      });
+
+
+      return res.status(200).send({
+        status: "success",
+        customers
+      });
+
+    })
+    .catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al obtener los clientes"
+      });
+    });
+}
+
 const addCustomer = (req, res) => {
   let body = req.body;
   let clienteToSave = new Customer(body);
@@ -158,5 +182,5 @@ const deleteCustomer = (req, res) => {
     })
 }
 module.exports = {
-  getCustomers, addCustomer, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer
+  getCustomers, addCustomer, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer, getCustomersPrincipalPanel
 };
