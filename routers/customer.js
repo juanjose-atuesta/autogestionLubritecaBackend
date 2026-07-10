@@ -20,6 +20,7 @@ router.post("/addCustomer", CustomerController.addCustomer);
 //PATCH 
 router.patch("/toogleWasContacted/:id", CustomerController.toggleWasContacted);
 
+router.patch("/toogleReservationConcluded/:id", CustomerController.toggleReservationConcluded);
 router.patch("/editCustomer/:id", CustomerController.editCustomer);
 
 //DELETE 

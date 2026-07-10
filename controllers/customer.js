@@ -160,6 +160,37 @@ const toggleWasContacted = async (req, res) => {
   }
 }
 
+const toggleReservationConcluded = async (req, res) => {
+  const id = req.params.id
+  try {
+    const customer = await Customer.findOne({ id: id });
+    if (!customer) {
+      return res.status(404).send({
+        status: "error",
+        message: "No se encontro el cliente"
+      });
+    }
+    // Cambia el valor al contrario
+    customer.reservationConcluded = true;
+    await customer.save();
+    res.status(200).send({
+      status: "success",
+      customerUpdated: customer
+    });
+
+    // Notificar después de responder, con un pequeño delay
+    setTimeout(() => {
+      notificar('cliente-editado', { id: customer._id });
+    }, 100);
+  } catch (e) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error al actualizar el cliente"
+    });
+  }
+
+}
+
 
 const deleteCustomer = (req, res) => {
   let id = req.params.id;
@@ -182,5 +213,5 @@ const deleteCustomer = (req, res) => {
     })
 }
 module.exports = {
-  getCustomers, addCustomer, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer, getCustomersPrincipalPanel
+  getCustomers, addCustomer, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer, getCustomersPrincipalPanel, toggleReservationConcluded
 };
