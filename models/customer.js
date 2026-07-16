@@ -50,6 +50,10 @@ const CustomerSchema = new Schema({
   id: {
     type: String,
     default: Date.now
+  },
+  reservationConcluded: {
+    type: Boolean,
+    default: false
   }
 });
 
