@@ -1,2 +1,117 @@
 
 node_modules/
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Logging
+/logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Diagnostic reports (https://nodejs.org/api/cli.html#cli_diagnostic_report)
+report.[pid].[timestamp].[hostname].json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Instrumented libs (https://github.com/nodejs/node-js-lib)
+lib-cov*
+
+# Coverage directory used by tools like istanbul
+/coverage
+/*.lcov
+
+# Grunt intermediate storage (https://gruntjs.com/grunt-file/using-grunt-intermediate-storage)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+/bower_components
+
+# node-waf configuration
+/.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency locks
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.*
+
+# Test files
+ coverage
+ nyc reports
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root
+._*
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+
+# OS generated files
+Thumbs.db
+ehthumbs.desktop
+Desktop.ini
+
+# Excel backups (generados por la funcionalidad)
+*.xlsx
+*.xls
+
+# Logs de la aplicación
+logs/
+
+# Backups locales de pruebas
+*_backup_*
+*_test_*
+
+# Archivos temporales de Node
+node_tmp*
+
+# Docker
+docker-compose.override.yml
+
+# SaaS
+.env.local
+.env.development
+.env.local
+.env.test
+.env.production
+
+# Miscellaneous
+!.gitignore
+!.env.example
+
+*.xlsx

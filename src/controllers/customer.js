@@ -1,7 +1,7 @@
 const Customer = require("../models/customer");
 
 // En pedidos.controller.js
-const { notificar } = require('../utils/sse');
+const { notificar } = require('../../utils/sse');
 //Creamos los metodos
 
 

@@ -1,5 +1,5 @@
 const HistorialDB = require('../models/historialDB');
-const { notificar } = require('../utils/sse');
+const { notificar } = require('../../utils/sse');
 
 const saveToHistorialDB = (req, res) => {
   let body = req.body;

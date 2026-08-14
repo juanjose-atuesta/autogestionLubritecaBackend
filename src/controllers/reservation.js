@@ -1,6 +1,6 @@
 const Reservation = require("../models/reservation");
 
-const { notificar } = require('../utils/sse');
+const { notificar } = require('../../utils/sse');
 const saveReservation = (req, res) => {
   let body = req.body;
   let reservationToSave = new Reservation(body);
