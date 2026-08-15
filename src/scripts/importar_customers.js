@@ -5,8 +5,15 @@ const Customer = require(path.join(__dirname, '..', 'models', 'customer'));
 
 const toDateString = (v) => {
   if (v === null || v === undefined || v === '') return '';
-  if (v instanceof Date) return v.toISOString();
-  return String(v).trim();
+  if (v instanceof Date) {
+    const y = v.getFullYear();
+    const m = String(v.getMonth() + 1).padStart(2, '0');
+    const d = String(v.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  const str = String(v).trim();
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return match ? `${match[1]}-${match[2]}-${match[3]}` : str;
 };
 
 const getMileage = (v) => {
