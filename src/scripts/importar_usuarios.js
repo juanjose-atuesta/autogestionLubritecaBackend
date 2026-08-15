@@ -32,6 +32,8 @@ const User = require(path.join(__dirname, '..', 'models', 'user'));
   });
 
   let created = 0, existing = 0, errors = 0;
+  const hoy = new Date();
+  const registrationDay = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
   for (const r of rows) {
     try {
       const found = await User.findOne({ id: r.id });
@@ -39,7 +41,7 @@ const User = require(path.join(__dirname, '..', 'models', 'user'));
         existing++;
         continue;
       }
-      await User.create(r);
+      await User.create({ ...r, registrationDay });
       created++;
     } catch (e) {
       errors++;
