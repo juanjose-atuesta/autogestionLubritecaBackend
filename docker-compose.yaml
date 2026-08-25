@@ -7,8 +7,12 @@ services:
       - MONGO_URI=mongodb://mongo:27017/autogestionLubritecaDB
     depends_on:
       - mongo
+    restart: unless-stopped
 
   mongo:
-    image: mongo:7
+    image: mongo:8.3.8-noble
+    environment:
+      - GLIBC_TUNABLES=glibc.pthread.rseq=1
     volumes:
       - /var/lib/mongodb:/data/db
+    restart: unless-stopped
