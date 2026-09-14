@@ -11,11 +11,13 @@
 1. **Clonar o copiar esta carpeta** (ya estás aquí si estás leyendo esto)
 
 2. **Instalar dependencias**:
+
    ```bash
    npm install
    ```
 
 3. **Configurar variables de entorno**:
+
    ```bash
    cp .env.example .env
    # Luego editar .env con tus valores apropiados
@@ -31,14 +33,16 @@
 
 ## � ▶��️ Ejecución
 
-### Modo Desarrollo (recomendado para pruebas):
+### Modo Desarrollo (recomendado para pruebas)
+
 ```bash
 npm run dev
 # o
 npm start
 ```
 
-### Modo Producción:
+### Modo Producción
+
 ```bash
 npm start
 ```
@@ -52,11 +56,13 @@ npm test
 ```
 
 Para tests con watch mode (desarrollo):
+
 ```bash
 npm run test:watch
 ```
 
 Para ver reporte de cobertura:
+
 ```bash
 npm test
 # Luego abrir coverage/lcov-report/index.html en tu navegador
@@ -67,6 +73,7 @@ npm test
 ### Exportar Base de Datos a Excel
 
 Con curl (reemplaza TU_TOKEN):
+
 ```bash
 curl -H "X-Admin-Token: TU_TOKEN" \
      -o lubricerteca_backup_$(date +%Y%m%d).xlsx \
@@ -74,6 +81,7 @@ curl -H "X-Admin-Token: TU_TOKEN" \
 ```
 
 O desde el navegador (si configuraste acceso localhost):
+
 ```
 http://localhost:3000/api/admin/export-excel
 ```
@@ -81,6 +89,7 @@ http://localhost:3000/api/admin/export-excel
 ### Importar desde Excel
 
 Con curl (reemplaza TU_TOKEN y ruta al archivo):
+
 ```bash
 curl -X POST -H "X-Admin-Token: TU_TOKEN" \
      -F "excelFile=@ruta/a/tu/archivo.xlsx" \
@@ -95,7 +104,7 @@ La funcionalidad de export/import está protegida y solo accesible por administr
    - Establece `ADMIN_EXPORT_IMPORT_TOKEN` en tu archivo .env
    - Incluye el header `X-Admin-Token: [tu_token]` en todas las peticiones
 
-2. **Acceso desde Localhost** 
+2. **Acceso desde Localhost**
    - Solo funciona si la petición viene de `127.0.0.1`, `::1` o `localhost`
    - **NO SE RECOMIENDA EN PRODUCCIÓN**
 
@@ -130,9 +139,11 @@ Para integrar esta funcionalidad en tu repositorio principal:
 1. Copiar `src/services/excelService.js` a tu proyecto
 2. Copiar `src/admin/excelRouter.js` a tu proyecto
 3. Actualizar tu `index.js` principal para montar el router:
+
    ```javascript
-   app.use('/api/admin', require('./admin/excelRouter'));
+   app.use("/api/admin", require("./admin/excelRouter"));
    ```
+
 4. Agregar `"exceljs": "^4.4.0"` a tus dependencias en package.json
 5. Copiar las medidas de seguridad (middelware de auth) según tus necesidades
 6. Asegurarte de que tus modelos estén disponibles para ser requeridos
@@ -140,18 +151,21 @@ Para integrar esta funcionalidad en tu repositorio principal:
 ## �� ⚠��️ Consideraciones Importantes
 
 ### Rendimiento
+
 - La exportación consulta todos los documentos de todas las colecciones
 - En bases de datos muy grandes, considerar agregar paginación o límites
 - La importación procesa fila por fila y hace operaciones individuales de base de datos
 - Para datasets muy grandes, considerar operaciones en lote
 
 ### Compatibilidad
+
 - Funciona con archivos .xlsx y .xls
 - Los IDs de MongoDB se preservan como strings en Excel
 - Las fechas se exportan en formato ISO y se convierten de vuelta al importar
 - Los objetos anidados se aplantan usando notación de punto (ej: `address.street`)
 
 ### Extensibilidad
+
 - Para añadir nuevos modelos al export/import, simplemente agréguelos al objeto `models` en `excelRouter.js`
 - Cambios en esquemas de modelos se manejan automáticamente
 - El sistema detecta dinámicamente todas las columnas posibles
@@ -167,6 +181,7 @@ Para integrar esta funcionalidad en tu repositorio principal:
 ## �� 📞 Soporte
 
 Si tienes problemas o preguntas, revisa:
+
 1. El archivo README.md para documentación completa
 2. Los comentarios en el código fuente para detalles de implementación
 3. Los tests en el directorio test/ para ejemplos de uso

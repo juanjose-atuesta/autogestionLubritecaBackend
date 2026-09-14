@@ -21,8 +21,20 @@ const getUsers = (req, res) => {
       })
     })
 }
-const addUser = (req, res) => {
+const addUser = async (req, res) => {
   let body = req.body;
+
+  const existente = await User.findOne({
+    name: String(body.name || '').toUpperCase().trim(),
+    telephone: body.telephone
+  });
+  if (existente) {
+    return res.status(409).send({
+      status: "error",
+      message: "Ya existe un usuario con el mismo nombre y celular"
+    });
+  }
+
   let userToSave = new User(body);
   userToSave.save()
     .then(userSaved => {

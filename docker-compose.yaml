@@ -10,7 +10,7 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongo:8.3.8-noble
+    image: mongo:7
     environment:
       - GLIBC_TUNABLES=glibc.pthread.rseq=1
     volumes:
