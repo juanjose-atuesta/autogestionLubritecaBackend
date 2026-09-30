@@ -46,7 +46,7 @@ const addUser = async (req, res) => {
         status: "success",
         userSaved
       })
-      notificar('usuario-agregado', { id: userSaved._id });
+      notificar('usuario-agregado', { id: userSaved._id, usuario: userSaved });
     })
     .catch(e => {
       // Evita responder 500 por errores esperables (validación / duplicados)
@@ -178,7 +178,7 @@ const addRecommendedUser = async (req, res) => {
     res.status(200).send({
       status: "success"
     });
-    notificar('usuarioRecomendado-agregado', { id: user._id });
+    notificar('usuarioRecomendado-agregado', { id: user._id, usuario: user });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -202,7 +202,7 @@ const setRecommended = async (req, res) => {
       status: "success",
       userUpdated: user
     });
-    notificar('meRecomendaron-editado', { id: user._id });
+    notificar('meRecomendaron-editado', { id: user._id, usuario: user });
   } catch (e) {
     return res.status(500).send({});
   }
@@ -258,7 +258,7 @@ const addRecommendedMe = (req, res) => {
       res.status(200).send({
         status: "success"
       });
-      notificar('meRecomendo-agregado', { id: userUpdated._id });
+      notificar('meRecomendo-agregado', { id: userUpdated._id, usuario: userUpdated });
     })
     .catch(e => res.status(500).send({}));
 
@@ -277,7 +277,7 @@ const editUser = (req, res) => {
       res.status(200).send({
         status: "success"
       });
-      notificar('usuario-editado', { id: userUpdated._id });
+      notificar('usuario-editado', { id: userUpdated._id, usuario: userUpdated });
     })
     .catch(e => res.status(500).send({}));
 
@@ -286,11 +286,12 @@ const editUser = (req, res) => {
 const deleteUser = (req, res) => {
   let id = req.params.id;
   User.findOneAndDelete({ id: id })
-    .then(customerDeleted => {
-      if (!customerDeleted) return res.status(404).send({
+    .then(userDeleted => {
+      if (!userDeleted) return res.status(404).send({
         status: "error",
         message: "No se encontro"
       });
+      notificar('usuario-eliminado', { id: userDeleted._id, usuario: userDeleted });
       return res.status(200).send({
         status: "succes"
       })
@@ -300,7 +301,6 @@ const deleteUser = (req, res) => {
         status: "error",
         message: "Error al eliminar el cliente"
       });
-      notificar('usuario-eliminado', { id: customerDeleted._id });
     })
 }
 
@@ -326,7 +326,7 @@ const addHighBuy = async (req, res) => {
     res.status(200).send({
       status: "success"
     });
-    notificar('agregarPuntos-compraAlta', { id: user._id });
+    notificar('agregarPuntos-compraAlta', { id: user._id, usuario: user });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -355,7 +355,7 @@ const addFrecuentBuy = async (req, res) => {
     res.status(200).send({
       status: "success"
     });
-    notificar('agregarPuntos-compraRecurrente', { id: user._id });
+    notificar('agregarPuntos-compraRecurrente', { id: user._id, usuario: user });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -386,7 +386,7 @@ const editPoints = async (req, res) => {
 
     await user.save();
     res.status(200).send({ status: 'success', userUpdated: user });
-    notificar('puntosEditados', { id: user._id });
+    notificar('puntosEditados', { id: user._id, usuario: user });
   } catch (e) {
     console.error('Error editPoints:', e);
     return res.status(500).send({ status: 'error', message: 'Error al actualizar puntos' });

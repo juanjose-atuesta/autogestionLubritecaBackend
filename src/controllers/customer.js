@@ -51,6 +51,27 @@ const getCustomersPrincipalPanel = (req, res) => {
     });
 }
 
+const getCustomersAll = (req, res) => {
+  Customer.find()
+    .then(customers => {
+      if (!customers) return res.status(404).send({
+        status: "error",
+        message: "No se encontraron clientes"
+      });
+
+      return res.status(200).send({
+        status: "success",
+        customers
+      });
+    })
+    .catch(e => {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al obtener los clientes"
+      });
+    });
+}
+
 const addCustomer = (req, res) => {
   let body = req.body;
   let clienteToSave = new Customer(body);
@@ -60,7 +81,7 @@ const addCustomer = (req, res) => {
         status: "error",
         message: "No se pudo guardar el cliente"
       })
-      notificar('cliente-creado', { id: clienteToSave._id })
+      notificar('cliente-creado', { id: clienteSaved._id, cliente: clienteSaved });
       return res.status(200).send({
         status: "success",
         clienteSaved
@@ -117,7 +138,7 @@ const editCustomer = (req, res) => {
         status: "error",
         message: "No se encontró el cliente"
       });
-      notificar('cliente-editado', { id: customerUpdated._id })
+      notificar('cliente-editado', { id: customerUpdated._id, cliente: customerUpdated });
       return res.status(200).send({
         status: "success",
         customerUpdated
@@ -150,7 +171,7 @@ const toggleWasContacted = async (req, res) => {
 
     // Notificar después de responder, con un pequeño delay
     setTimeout(() => {
-      notificar('cliente-editado', { id: customer._id });
+      notificar('cliente-editado', { id: customer._id, cliente: customer });
     }, 100);
   } catch (e) {
     return res.status(500).send({
@@ -180,7 +201,7 @@ const toggleReservationConcluded = async (req, res) => {
 
     // Notificar después de responder, con un pequeño delay
     setTimeout(() => {
-      notificar('cliente-editado', { id: customer._id });
+      notificar('cliente-editado', { id: customer._id, cliente: customer });
     }, 100);
   } catch (e) {
     return res.status(500).send({
@@ -200,7 +221,7 @@ const deleteCustomer = (req, res) => {
         status: "error",
         message: "No se encontro el cliente"
       });
-      notificar('cliente-eliminado', { id: customerDeleted._id });
+      notificar('cliente-eliminado', { id: customerDeleted._id, cliente: customerDeleted });
       return res.status(200).send({
         status: "success",
         customerDeleted
@@ -213,5 +234,5 @@ const deleteCustomer = (req, res) => {
     })
 }
 module.exports = {
-  getCustomers, addCustomer, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer, getCustomersPrincipalPanel, toggleReservationConcluded
+  getCustomers, addCustomer, listCustomersContacted, editCustomer, toggleWasContacted, deleteCustomer, getCustomersPrincipalPanel, toggleReservationConcluded, getCustomersAll
 };

@@ -77,7 +77,7 @@ const addPedido = (req, res) => {
         status: "success",
         pedidoSaved
       });
-      notificar('pedido-agregado', { id: pedidoSaved._id });
+      notificar('pedido-agregado', { id: pedidoSaved._id, pedido: pedidoSaved });
     })
     .catch(e => {
       if (e?.name === 'ValidationError') {
@@ -132,7 +132,7 @@ const editPedido = (req, res) => {
         status: "success",
         pedidoUpdated
       });
-      notificar('pedido-editado', { id: pedidoUpdated._id });
+      notificar('pedido-editado', { id: pedidoUpdated._id, pedido: pedidoUpdated });
     })
     .catch(err => {
       if (err?.name === 'ValidationError') {
@@ -160,7 +160,7 @@ const deletePedido = (req, res) => {
       res.status(200).send({
         status: "success"
       });
-      notificar('pedido-eliminado', { id: pedidoDeleted._id });
+      notificar('pedido-eliminado', { id: pedidoDeleted._id, pedido: pedidoDeleted });
     })
     .catch(e => {
       return res.status(500).send({

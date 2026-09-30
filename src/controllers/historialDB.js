@@ -14,7 +14,7 @@ const saveToHistorialDB = (req, res) => {
         status: "success",
         historialDBSaved
       });
-      notificar('historial-guardado', { id: historialDBSaved._id });
+      notificar('historial-guardado', { id: historialDBSaved._id, historial: historialDBSaved });
     }).catch(e => {
       return res.status(500).send({
         status: "error",
@@ -55,10 +55,11 @@ const toggleWasContacted = async (req, res) => {
     // Cambia el valor al contrario
     customer.wasContacted = !customer.wasContacted;
     await customer.save();
-    return res.status(200).send({
+    res.status(200).send({
       status: "success",
       customerUpdated: customer
     });
+    notificar('historial-contactado', { id: customer._id, historial: customer });
   } catch (e) {
     return res.status(500).send({
       status: "error",
@@ -110,6 +111,7 @@ const editHistorialDBCustomer = (req, res) => {
         status: "error",
         message: "No se encontró el cliente"
       });
+      notificar('historial-editado', { id: customerUpdated._id, historial: customerUpdated });
       return res.status(200).send({
         status: "success",
         customerUpdated
