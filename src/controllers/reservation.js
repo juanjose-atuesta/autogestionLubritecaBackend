@@ -15,7 +15,7 @@ const saveReservation = (req, res) => {
         reservationSaved
       });
 
-      notificar('reserva-agregada', { id: reservationSaved._id, reserva: reservationSaved });
+      notificar('reserva-agregada', { id: reservationSaved.reservationId, reserva: reservationSaved });
 
 
     }).catch(e => {
@@ -76,7 +76,7 @@ const deleteReservation = (req, res) => {
         status: "success",
         reservationDeleted
       });
-      notificar("reserva-eliminada", { id: reservationDeleted._id, reserva: reservationDeleted });
+      notificar("reserva-eliminada", { id: reservationDeleted.reservationId, reserva: reservationDeleted });
 
     }).catch(e => {
       return res.status(500).send({
@@ -112,7 +112,7 @@ const editReservation = (req, res) => {
         status: "success",
         reservationUpdated
       });
-      notificar("reserva-editada", { id: reservationUpdated._id, reserva: reservationUpdated });
+      notificar("reserva-editada", { id: reservationUpdated.reservationId, reserva: reservationUpdated });
     })
     .catch(err => res.status(500).send({
       status: "error",
@@ -136,7 +136,7 @@ const toggleWasConcluded = async (req, res) => {
       reservation: reservation
     })
 
-    notificar('reservacion-concluida', { id: reservation._id, reserva: reservation });
+    notificar('reservacion-concluida', { id: reservation.reservationId, reserva: reservation });
   }
   catch (e) {
     return res.status(500).send({

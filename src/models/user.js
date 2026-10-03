@@ -6,10 +6,11 @@ const UserSchema = new Schema({
     required: true,
     uppercase: true,
   },
+  // La cedula es el identificador principal, pero puede guardarse como "."
+  // cuando el cliente no quiere darlo: la unicidad se valida en el controller.
   id: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   telephone: {
     type: String,

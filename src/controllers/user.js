@@ -1,6 +1,24 @@
 const User = require("../models/user");
 
+const {
+  esCedulaRegistrada,
+  buscarDuplicadosAlta,
+  localizarUsuarioUnico
+} = require('../services/usuarios');
+
 const { notificar } = require('../../utils/sse');
+
+// Identifica el usuario de req.params.id + req.body.telephone (o ?telephone=).
+// Deja el documento en req.usuario o responde con el detalle de duplicados.
+async function identificarUsuario(req, res, next) {
+  const telephone = req.body?.telephone ?? req.query?.telephone ?? '';
+  const { usuario, error } = await localizarUsuarioUnico(req.params.id, telephone);
+  if (error) {
+    return res.status(error.codigo).send({ status: "error", ...error });
+  }
+  req.usuario = usuario;
+  return next();
+}
 const getUsers = (req, res) => {
   User.find()
     .then(users => {
@@ -22,16 +40,32 @@ const getUsers = (req, res) => {
     })
 }
 const addUser = async (req, res) => {
-  let body = req.body;
+  let body = req.body || {};
 
-  const existente = await User.findOne({
-    name: String(body.name || '').toUpperCase().trim(),
-    telephone: body.telephone
-  });
-  if (existente) {
+  const name = String(body.name || '').trim();
+  const id = String(body.id || '').trim();
+  const telephone = String(body.telephone || '').trim();
+
+  if (!name || !id || !telephone) {
+    return res.status(400).send({
+      status: "error",
+      message: "Nombre, cédula y teléfono son obligatorios"
+    });
+  }
+
+  // Con cédula real se validan cédula, nombre y teléfono; si el cliente no da
+  // cédula (".") solo se comparan nombre y teléfono.
+  const duplicados = await buscarDuplicadosAlta({ id, name, telephone });
+  if (duplicados.length) {
+    const campos = [...new Set(duplicados.flatMap(duplicado => duplicado.coincideEn))];
     return res.status(409).send({
       status: "error",
-      message: "Ya existe un usuario con el mismo nombre y celular"
+      motivo: "usuarios-duplicados",
+      message: `No se admite el usuario: ya existe un usuario registrado con el mismo ${campos.join(", ")}.`,
+      camposDuplicados: campos,
+      cedulaRegistrada: esCedulaRegistrada(id),
+      cedula: id,
+      duplicados
     });
   }
 
@@ -46,7 +80,7 @@ const addUser = async (req, res) => {
         status: "success",
         userSaved
       })
-      notificar('usuario-agregado', { id: userSaved._id, usuario: userSaved });
+      notificar('usuario-agregado', { id: userSaved.id, usuario: userSaved });
     })
     .catch(e => {
       // Evita responder 500 por errores esperables (validación / duplicados)
@@ -57,7 +91,7 @@ const addUser = async (req, res) => {
           details: Object.fromEntries(Object.entries(e.errors || {}).map(([k, v]) => [k, v?.message]))
         });
       }
-      // Duplicado por índice unique (por ejemplo id repetido)
+      // Índice unique pendiente de eliminar en bases antiguas (id repetido)
       if (e?.code === 11000) {
         return res.status(409).send({
           status: 'error',
@@ -141,12 +175,8 @@ const subtractPoint = async (req, res) => {
 
 // FUnciones de usuarios recomendados 
 const getRecommendedUsers = async (req, res) => {
-  let id = req.params.id;
+  const user = req.usuario;
   try {
-    const user = await User.findOne({ id: id });
-    if (!user) {
-      return res.status(404).send({});
-    }
     return res.status(200).send({
       status: "success",
       recommendedUsers: user.recommendedUsers
@@ -157,28 +187,32 @@ const getRecommendedUsers = async (req, res) => {
 }
 
 const addRecommendedUser = async (req, res) => {
-  let id = req.params.id;
   // Acepta recommendedUserId (nuevo) o id (compat)
   let recommendedUserId = req.body.recommendedUserId || req.body.id;
   try {
-    const user = await User.findOne({ id: id });
-    if (!user) {
-      return res.status(404).send({});
-    }
+    const user = req.usuario;
     if (!recommendedUserId) {
       return res.status(400).send({
         status: 'error',
         message: 'Falta recommendedUserId'
       });
     }
-    user.recommendedUsers.push(recommendedUserId);
+    // El recomendado tambien debe ser un usuario unico
+    const { usuario: recomendado, error } = await localizarUsuarioUnico(
+      recommendedUserId,
+      req.body.recommendedTelephone
+    );
+    if (error) {
+      return res.status(error.codigo).send({ status: "error", ...error });
+    }
+    user.recommendedUsers.push(String(recomendado.id || '').trim());
     user.pointsByRecommendation += 5;
     user.totalPoints += 5;
     await user.save();
     res.status(200).send({
       status: "success"
     });
-    notificar('usuarioRecomendado-agregado', { id: user._id, usuario: user });
+    notificar('usuarioRecomendado-agregado', { id: user.id, usuario: user });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -187,22 +221,15 @@ const addRecommendedUser = async (req, res) => {
 }
 
 const setRecommended = async (req, res) => {
-  let id = req.params.id;
   try {
-    const user = await User.findOne({ id: id });
-    if (!user) {
-      return res.status(404).send({
-        status: "error",
-        message: "No se encontro el cliente"
-      });
-    }
+    const user = req.usuario;
     user.wasContacted = true;
     await user.save();
     res.status(200).send({
       status: "success",
       userUpdated: user
     });
-    notificar('meRecomendaron-editado', { id: user._id, usuario: user });
+    notificar('meRecomendaron-editado', { id: user.id, usuario: user });
   } catch (e) {
     return res.status(500).send({});
   }
@@ -226,11 +253,7 @@ const getUsersNotContacted = async (req, res) => {
 
 const getRecommendedMe = async (req, res) => {
   try {
-    const user = await User.findOne({ id: req.params.id });
-
-    if (!user) return res.status(404).send({
-      status: "error"
-    });
+    const user = req.usuario;
     const recommendedMe = user.recommendedMe;
     return res.status(200).send({
       status: "success",
@@ -245,74 +268,101 @@ const getRecommendedMe = async (req, res) => {
 
 }
 
-const addRecommendedMe = (req, res) => {
-  const id = req.params.id;
+const addRecommendedMe = async (req, res) => {
   const { recommendedMe } = req.body;
-  if (!id) {
-    return res.status(400).send({ status: "error", message: "No se proporcionó el id del usuario a editar" });
+  try {
+    // recommendedMe identifica a quien hizo la recomendación: también debe ser único
+    const { usuario: recomendador, error } = await localizarUsuarioUnico(
+      recommendedMe,
+      req.body.recommendedMeTelephone
+    );
+    if (error) {
+      return res.status(error.codigo).send({ status: "error", ...error });
+    }
+    const recommendedMeValue = String(recomendador.id || '').trim();
+    const userUpdated = await User.findByIdAndUpdate(
+      req.usuario._id,
+      { $set: { recommendedMe: recommendedMeValue } },
+      { new: true }
+    );
+    if (!userUpdated) return res.status(404).send({});
+    res.status(200).send({
+      status: "success"
+    });
+    notificar('meRecomendo-agregado', { id: userUpdated.id, usuario: userUpdated });
+  } catch (e) {
+    console.error('Error addRecommendedMe:', e);
+    return res.status(500).send({});
   }
-  const camposActualizar = { recommendedMe };
-  User.findOneAndUpdate({ id: id }, { $set: camposActualizar }, { new: true })
-    .then(userUpdated => {
-      if (!userUpdated) return res.status(404).send({});
-      res.status(200).send({
-        status: "success"
-      });
-      notificar('meRecomendo-agregado', { id: userUpdated._id, usuario: userUpdated });
-    })
-    .catch(e => res.status(500).send({}));
-
 }
 
-const editUser = (req, res) => {
-  const id = req.params.id;
+const editUser = async (req, res) => {
   const { name, idNew, registrationDay, telephone, email } = req.body;
-  if (!id) {
-    return res.status(400).send({ status: "error", message: "No se proporcionó el id del usuario a editar" });
-  }
-  const camposActualizar = { name, idNew, registrationDay, telephone, email };
-  User.findOneAndUpdate({ id: id }, { $set: camposActualizar }, { new: true })
-    .then(userUpdated => {
-      if (!userUpdated) return res.status(404).send({});
-      res.status(200).send({
-        status: "success"
-      });
-      notificar('usuario-editado', { id: userUpdated._id, usuario: userUpdated });
-    })
-    .catch(e => res.status(500).send({}));
+  try {
+    const usuario = req.usuario;
 
+    // La cédula es el identificador principal: si viene "idNew" se actualiza "id"
+    const cedulaNueva = String(req.body.id ?? idNew ?? '').trim();
+    const camposActualizar = { name, registrationDay, telephone, email };
+    if (cedulaNueva && cedulaNueva !== String(usuario.id || '').trim()) {
+      const duplicados = await buscarDuplicadosAlta({
+        id: cedulaNueva,
+        name: String(name ?? usuario.name).trim(),
+        telephone: String(telephone ?? usuario.telephone).trim()
+      });
+      const otros = duplicados.filter(otro => String(otro._id) !== String(usuario._id));
+      if (otros.length) {
+        const campos = [...new Set(otros.flatMap(otro => otro.coincideEn))];
+        return res.status(409).send({
+          status: "error",
+          motivo: "usuarios-duplicados",
+          message: `No se admite la edición: ya existe un usuario con el mismo ${campos.join(", ")}.`,
+          camposDuplicados: campos,
+          cedula: cedulaNueva,
+          duplicados: otros
+        });
+      }
+      camposActualizar.id = cedulaNueva;
+    }
+
+    const userUpdated = await User.findByIdAndUpdate(usuario._id, { $set: camposActualizar }, { new: true });
+    if (!userUpdated) return res.status(404).send({});
+    res.status(200).send({
+      status: "success"
+    });
+    notificar('usuario-editado', { id: userUpdated.id, usuario: userUpdated });
+  } catch (e) {
+    console.error('Error editUser:', e);
+    return res.status(500).send({});
+  }
 }
 
-const deleteUser = (req, res) => {
-  let id = req.params.id;
-  User.findOneAndDelete({ id: id })
-    .then(userDeleted => {
-      if (!userDeleted) return res.status(404).send({
-        status: "error",
-        message: "No se encontro"
-      });
-      notificar('usuario-eliminado', { id: userDeleted._id, usuario: userDeleted });
-      return res.status(200).send({
-        status: "succes"
-      })
-    })
-    .catch(e => {
-      res.status(500).send({
-        status: "error",
-        message: "Error al eliminar el cliente"
-      });
-    })
+const deleteUser = async (req, res) => {
+  // identificarUsuario ya garantiza un único usuario con esa cédula
+  try {
+    const userDeleted = await User.findByIdAndDelete(req.usuario._id);
+    if (!userDeleted) return res.status(404).send({
+      status: "error",
+      message: "No se encontro"
+    });
+    notificar('usuario-eliminado', { id: userDeleted.id, usuario: userDeleted });
+    return res.status(200).send({
+      status: "succes"
+    });
+  } catch (e) {
+    console.error('Error deleteUser:', e);
+    res.status(500).send({
+      status: "error",
+      message: "Error al eliminar el cliente"
+    });
+  }
 }
 
 //Funciones para agregar puntos 
 const addHighBuy = async (req, res) => {
-  let id = req.params.id
   let idBill = req.body.idBill;
   try {
-    const user = await User.findOne({ id: id });
-    if (!user) {
-      return res.status(404).send({});
-    }
+    const user = req.usuario;
     if (!idBill) {
       return res.status(400).send({
         status: 'error',
@@ -326,7 +376,7 @@ const addHighBuy = async (req, res) => {
     res.status(200).send({
       status: "success"
     });
-    notificar('agregarPuntos-compraAlta', { id: user._id, usuario: user });
+    notificar('agregarPuntos-compraAlta', { id: user.id, usuario: user });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -335,13 +385,9 @@ const addHighBuy = async (req, res) => {
 }
 
 const addFrecuentBuy = async (req, res) => {
-  let id = req.params.id
   let service = req.body.service;
   try {
-    const user = await User.findOne({ id: id });
-    if (!user) {
-      return res.status(404).send({});
-    }
+    const user = req.usuario;
     if (!service) {
       return res.status(400).send({
         status: 'error',
@@ -355,7 +401,7 @@ const addFrecuentBuy = async (req, res) => {
     res.status(200).send({
       status: "success"
     });
-    notificar('agregarPuntos-compraRecurrente', { id: user._id, usuario: user });
+    notificar('agregarPuntos-compraRecurrente', { id: user.id, usuario: user });
   } catch (e) {
     console.error(e);
     return res.status(500).send({});
@@ -373,8 +419,7 @@ const editPoints = async (req, res) => {
   } = req.body;
 
   try {
-    const user = await User.findOne({ id });
-    if (!user) return res.status(404).send({ status: 'error', message: 'Usuario no encontrado' });
+    const user = req.usuario;
 
     // Solo actualiza los campos que vengan en el body
     if (pointsByRecommendation !== undefined) user.pointsByRecommendation = Number(pointsByRecommendation) || 0;
@@ -386,7 +431,7 @@ const editPoints = async (req, res) => {
 
     await user.save();
     res.status(200).send({ status: 'success', userUpdated: user });
-    notificar('puntosEditados', { id: user._id, usuario: user });
+    notificar('puntosEditados', { id: user.id, usuario: user });
   } catch (e) {
     console.error('Error editPoints:', e);
     return res.status(500).send({ status: 'error', message: 'Error al actualizar puntos' });
@@ -396,9 +441,10 @@ const editPoints = async (req, res) => {
 // Obtener ranking de usuarios por puntos (para estadísticas)
 const getRankingUsuarios = async (req, res) => {
   try {
+    // Se incluye _id y telephone para poder identificar al usuario (cédula ".")
     const users = await User.find(
       {},
-      'name id pointsByRecommendation pointsByFrecuentBuy pointsByHighBuy totalPoints'
+      'name id telephone pointsByRecommendation pointsByFrecuentBuy pointsByHighBuy totalPoints'
     ).sort({ totalPoints: -1 });
 
     return res.status(200).send({ status: 'success', users });
@@ -414,11 +460,8 @@ const getAvailableUsersToRecommend = async (req, res) => {
   }
 
   try {
-    // El usuario origen
-    const usuarioOrigen = await User.findOne({ id: origenId });
-    if (!usuarioOrigen) {
-      return res.status(404).send({ status: 'error', message: 'Usuario no encontrado' });
-    }
+    // El usuario origen (ya validado como único en req.usuario)
+    const usuarioOrigen = req.usuario;
 
     // ID de quien lo recomendó (para excluirlo)
     const idQueMeRecomendo = String(usuarioOrigen.recommendedMe || '').trim();
@@ -440,6 +483,7 @@ const getAvailableUsersToRecommend = async (req, res) => {
 };
 
 module.exports = {
+  identificarUsuario,
   getUsers,
   addUser,
   //addPoint,

@@ -81,7 +81,7 @@ const addCustomer = (req, res) => {
         status: "error",
         message: "No se pudo guardar el cliente"
       })
-      notificar('cliente-creado', { id: clienteSaved._id, cliente: clienteSaved });
+      notificar('cliente-creado', { id: clienteSaved.id, cliente: clienteSaved });
       return res.status(200).send({
         status: "success",
         clienteSaved
@@ -138,7 +138,7 @@ const editCustomer = (req, res) => {
         status: "error",
         message: "No se encontró el cliente"
       });
-      notificar('cliente-editado', { id: customerUpdated._id, cliente: customerUpdated });
+      notificar('cliente-editado', { id: customerUpdated.id, cliente: customerUpdated });
       return res.status(200).send({
         status: "success",
         customerUpdated
@@ -171,7 +171,7 @@ const toggleWasContacted = async (req, res) => {
 
     // Notificar después de responder, con un pequeño delay
     setTimeout(() => {
-      notificar('cliente-editado', { id: customer._id, cliente: customer });
+      notificar('cliente-editado', { id: customer.id, cliente: customer });
     }, 100);
   } catch (e) {
     return res.status(500).send({
@@ -201,7 +201,7 @@ const toggleReservationConcluded = async (req, res) => {
 
     // Notificar después de responder, con un pequeño delay
     setTimeout(() => {
-      notificar('cliente-editado', { id: customer._id, cliente: customer });
+      notificar('cliente-editado', { id: customer.id, cliente: customer });
     }, 100);
   } catch (e) {
     return res.status(500).send({
@@ -221,7 +221,7 @@ const deleteCustomer = (req, res) => {
         status: "error",
         message: "No se encontro el cliente"
       });
-      notificar('cliente-eliminado', { id: customerDeleted._id, cliente: customerDeleted });
+      notificar('cliente-eliminado', { id: customerDeleted.id, cliente: customerDeleted });
       return res.status(200).send({
         status: "success",
         customerDeleted
