@@ -4,6 +4,7 @@ const router = express.Router();
 
 //GET 
 router.get("/reservationsList", ReservationController.reservationsList);
+router.get("/reservationsListAll", ReservationController.reservationsListAll);
 
 router.get("/getReservationsConcluded", ReservationController.getReservationsConcluded);
 //POST

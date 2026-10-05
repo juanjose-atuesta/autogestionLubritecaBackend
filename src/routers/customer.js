@@ -11,6 +11,7 @@ const CustomerController = require("../controllers/customer");
 router.get("/customersList", CustomerController.getCustomers);
 router.get("/listCustomersContacted", CustomerController.listCustomersContacted);
 router.get("/customersListPanelPrincipal", CustomerController.getCustomersPrincipalPanel);
+router.get("/customersListAll", CustomerController.getCustomersAll);
 
 //POST
 router.post("/addCustomer", CustomerController.addCustomer);
