@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: autogestion-lubriteca-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: ADMIN_EXPORT_IMPORT_TOKEN
+        sync: false
+      - key: ALLOW_LOCAL_ADMIN
+        value: "false"

@@ -49,6 +49,7 @@ yarn.lock
 # Environment variables
 .env
 .env.*
+atlas-credentials.env
 
 # Test files
  coverage

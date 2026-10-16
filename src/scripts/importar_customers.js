@@ -1,6 +1,7 @@
 const path = require('path');
 const ExcelJS = require('exceljs');
 const mongoose = require('mongoose');
+const connection = require(path.join(__dirname, '..', '..', 'database', 'connection'));
 const Customer = require(path.join(__dirname, '..', 'models', 'customer'));
 
 const toDateString = (v) => {
@@ -27,7 +28,7 @@ const getMileage = (v) => {
 };
 
 (async () => {
-  await mongoose.connect('mongodb://127.0.0.1:27017/autogestionLubritecaDB');
+  await connection();
 
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.readFile(path.join(__dirname, '..', '..', 'Estado de Clientes.xlsx'));

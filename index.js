@@ -1,3 +1,4 @@
+require('./database/env');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -5,7 +6,6 @@ const PORT = process.env.PORT || 3000;
 
 // Conexión a la base de datos
 const connection = require('./database/connection');
-connection();
 
 // Middleware
 app.use(cors());
@@ -48,7 +48,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor iniciado correctamente usando el puerto: ${PORT}`);
-  console.log(`Endpoints de admin disponibles en: http://localhost:${PORT}/api/admin/`);
-});
+const start = async () => {
+  await connection();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor iniciado correctamente usando el puerto: ${PORT}`);
+    console.log(`Endpoints de admin disponibles en: http://localhost:${PORT}/api/admin/`);
+  });
+};
+
+start();
