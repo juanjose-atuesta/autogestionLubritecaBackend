@@ -24,7 +24,8 @@ const connection = async () => {
     const masked = MONGO_URI.replace(/\/\/[^@]*@/, '//***:***@');
     console.log(`Conectando a MongoDB: ${masked}`);
     await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 15000,
+      tlsAllowInvalidCertificates: false,
     });
     console.log("Conexión a la base de datos establecida correctamente");
   } catch (error) {
