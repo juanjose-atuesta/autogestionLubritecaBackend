@@ -3,9 +3,10 @@ services:
     name: autogestion-lubriteca-backend
     runtime: docker
     plan: free
+    branch: presentacion
+    autoDeployTrigger: commit
     dockerfilePath: ./Dockerfile
     healthCheckPath: /
-    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
